@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEON BRAWL">
+<meta name="application-name" content="NEON BRAWL">
+<meta name="format-detection" content="telephone=no, email=no, address=no">
+<meta name="msapplication-tap-highlight" content="no">
+<link rel="apple-touch-icon" id="app-icon" href="data:,">
+<link rel="icon" id="fav-icon" href="data:,">
+<meta name="theme-color" content="#04050c">
+<meta name="screen-orientation" content="landscape">
+<title>NEON BRAWL — Platform Fighter</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui18.css">
+<link rel="stylesheet" href="css/ui19.css">
+</head>
+<body>
+<div id="wrap">
+<!-- portrait on a phone / tablet: ask for landscape (pointer: coarse only — desktops never see this) -->
+<div id="rotate" aria-live="polite"><i class="rot-phone"><u></u></i><b>Rotate your device</b><small>NEON BRAWL plays in landscape · tap to go fullscreen</small></div>
+<canvas id="gl"></canvas>
+<canvas id="game" tabindex="0"></canvas>
+<div id="touch"></div>
+<div id="ui">
+
+  <!-- INTRO SPLASH (first screen; the first tap unlocks audio, goes fullscreen and locks landscape) -->
+  <section class="screen show" id="scr-intro" data-act="intro">
+    <div class="scrim intro-scrim"></div>
+    <div class="intro-rays"></div>
+    <div class="intro-grid"></div>
+    <div class="intro-stage">
+      <div class="intro-logo3d" aria-label="NEON BRAWL">
+        <span class="il-layer l5">NEON BRAWL</span><span class="il-layer l4">NEON BRAWL</span><span class="il-layer l3">NEON BRAWL</span>
+        <span class="il-layer l2">NEON BRAWL</span><span class="il-layer l1">NEON BRAWL</span><span class="il-face">NEON BRAWL</span>
+      </div>
+      <div class="intro-sub">2.5D PLATFORM FIGHTER · 87 FIGHTERS · 41 ARENAS · ITEM SHOP · VOLLEY BRAWL</div>
+      <div class="intro-credit" aria-label="A Game by Lead Designer Mansour Sakka"><small>A Game by Lead Designer</small>
+        <b class="credit-name"><span style="--i:0">M</span><span style="--i:1">A</span><span style="--i:2">N</span><span style="--i:3">S</span><span style="--i:4">O</span><span style="--i:5">U</span><span style="--i:6">R</span><span class="sp" style="--i:7"> </span><span style="--i:8">S</span><span style="--i:9">A</span><span style="--i:10">K</span><span style="--i:11">K</span><span style="--i:12">A</span></b>
+        <i class="credit-beam"></i></div>
+      <div class="intro-tap">TAP TO START</div>
+    </div>
+    <i class="intro-flare"></i>
+  </section>
+
+  <!-- MAIN MENU -->
+  <section class="screen" id="scr-main">
+    <div class="scrim"></div>
+    <div class="mm">
+      <div class="mm-brand"><h1 class="logo" data-text="NEON BRAWL">NEON BRAWL</h1><p class="tag">2.5D platform fighter</p></div>
+      <!-- the player profile: username + equipped title (ui/profile.js) -->
+      <div class="profile" id="profile">
+        <button class="pf-avatar" id="pf-avatar" title="Your fighter">P</button>
+        <div class="pf-text"><button class="pf-title" id="pf-title" title="Change your title">No title yet</button>
+          <input id="pf-name" class="pf-name" maxlength="16" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Your name" aria-label="Username">
+          <small class="pf-meta" id="pf-meta"></small><button class="pf-mast" id="pf-mast" data-act="profile-open" title="Favorite Fighter · Mastery"></button></div>
+      </div>
+      <nav class="mcards">
+        <button class="mcard primary" data-go="scr-select"><i class="mc-ico">⚔</i><b>Battle</b><small>1v1 stock match vs the CPU</small><span class="mc-chev">›</span></button>
+        <button class="mcard" data-act="online"><i class="mc-ico">⇄</i><b>Multiplayer</b><small>Room codes · same Wi-Fi · peer-to-peer</small><span class="mc-chev">›</span></button>
+        <button class="mcard" data-act="challenges"><i class="mc-ico">★</i><b>Challenges</b><small>Arcade · Targets · Platforms · Monthly Minigames</small><span class="mc-chev">›</span></button>
+        <button class="mcard shop" data-go="scr-shop"><i class="mc-ico">🛍</i><b>Item Shop</b><small id="mc-shop">Fighters · maps · 45 skins · emotes</small><span class="mc-chev">›</span></button>
+        <button class="mcard pass" data-go="scr-pass"><i class="mc-ico">♛</i><b>Battle Pass</b><small id="mc-pass">Neon Tier 0 / 50</small><span class="mc-chev">›</span></button>
+      </nav>
+      <div class="mm-mini"><button class="mini" data-act="training-mode"><i>◎</i>Training</button><button class="mini hot" data-act="minigames-open"><i>🎮</i>Minigames</button><button class="mini" data-act="profile-open"><i>☺</i>Profile</button>
+        <button class="mini" data-go="scr-how"><i>✦</i>How to Play</button><button class="mini" data-go="scr-settings"><i>⚙</i>Settings</button></div>
+      <p class="mm-foot"><b id="hp-counts">87 fighters · 41 stages</b><span class="ver">v19 · WebGL 2 · Mastery</span></p>
+    </div>
+    <button class="coinchip" data-go="scr-shop" title="Your Coins — earned by playing, spent in the Item Shop"><i class="coin"></i><b class="coin-n">0</b><small>Coins</small></button>
+    <p class="mm-map" id="mm-map"></p>
+    <p class="foot">Aim with the mouse · tap E just before a hit lands to parry</p>
+  </section>
+
+  <!-- MULTIPLAYER: a sub-menu — create a room, join one, the lobby, and the same-Wi-Fi codes (peer-to-peer WebRTC, game/netplay.js) -->
+  <section class="screen" id="scr-online">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-net="back">← Back</button><h2><small class="crumb">Main menu ›</small>Multiplayer</h2><span class="step net-pill" id="net-status">Not connected</span></header>
+    <div class="body hub" data-hub="net">
+      <nav class="hub-nav">
+        <button class="hub-item on" data-hubpane="host"><i>✦</i><b>Create a room</b><small>Get a code to share</small></button>
+        <button class="hub-item" data-hubpane="join"><i>⌨</i><b>Join a room</b><small>Type a friend's code</small></button>
+        <button class="hub-item" data-hubpane="lobby"><i>⇄</i><b>Lobby</b><small id="net-nav-lobby">Not connected</small></button>
+        <button class="hub-item" data-hubpane="lan"><i>📶</i><b>Same Wi-Fi</b><small>No internet? Swap codes</small></button>
+        <p class="hub-note">Peer-to-peer WebRTC · public STUN · deterministic lockstep: only inputs travel between your devices.</p>
+      </nav>
+      <div class="hub-panel">
+        <p class="net-unsup" id="net-unsupported">This browser has no WebRTC, so online play isn't available here.</p>
+        <section class="hub-pane on net-host" data-pane="host">
+          <h3><i>1</i>Create a room</h3>
+          <p>Get a 6-character room code and send it to a friend — anywhere in the world. They join with it, and the match runs peer-to-peer.</p>
+          <button class="btn primary big" data-net="room-host">Create room</button>
+          <div class="room-code" id="room-code">— — —</div>
+          <div class="netbtns"><button class="btn" data-net="room-copy">Copy code</button><button class="btn" data-net="room-share">Share</button></div>
+          <p class="hub-tip">Leave this screen open: the lobby opens by itself the moment your rival connects.</p>
+        </section>
+        <section class="hub-pane net-join" data-pane="join">
+          <h3><i>2</i>Join a room</h3>
+          <p>Type the room code your friend sent you.</p>
+          <input id="room-in" class="room-in" maxlength="7" placeholder="ABC 123" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-label="Room code">
+          <button class="btn primary big" data-net="room-join">Join room</button>
+          <p class="hub-tip">Codes skip the look-alikes (no 0 / O, 1 / I), so every character is unambiguous.</p>
+        </section>
+        <section class="hub-pane net-lobby" data-pane="lobby">
+          <h3><i>⇄</i>Lobby</h3>
+          <div class="netvs"><div><small id="net-me-n">You</small><b id="net-me">–</b></div><i>VS</i><div><small id="net-them-n">Rival</small><b id="net-them">–</b></div></div>
+          <div class="netbtns"><button class="btn" data-net="fighter">Change fighter</button><button class="btn" id="net-stagebtn" data-net="stage">Change stage</button></div>
+          <p>Stage: <b id="net-stage">–</b></p>
+          <button class="btn primary big" data-net="start" id="net-start">Start match</button>
+          <p class="net-wait" id="net-wait">Waiting for the host to start…</p>
+          <p class="net-ping" id="net-ping"></p>
+          <button class="btn small" data-net="leave">Disconnect</button>
+        </section>
+        <section class="hub-pane" data-pane="lan">
+          <h3><i>📶</i>Same Wi-Fi, no internet</h3>
+          <p>Swap the full connection codes by hand (copy · paste · share). Only devices on the same network can reach each other this way.</p>
+          <div class="netwrap lan">
+            <div class="netcol"><h4>Host</h4>
+              <button class="btn small" data-net="host">Create host code</button>
+              <textarea id="net-offer" readonly placeholder="Your host code appears here"></textarea>
+              <div class="netbtns"><button class="btn small" data-net="copy" data-src="net-offer">Copy</button><button class="btn small" data-net="share" data-src="net-offer">Share</button></div>
+              <textarea id="net-answer-in" placeholder="Paste the reply code here"></textarea>
+              <div class="netbtns"><button class="btn small" data-net="paste" data-dst="net-answer-in">Paste</button><button class="btn small" data-net="accept">Connect</button></div></div>
+            <div class="netcol"><h4>Join</h4>
+              <textarea id="net-offer-in" placeholder="Paste the host code here"></textarea>
+              <div class="netbtns"><button class="btn small" data-net="paste" data-dst="net-offer-in">Paste</button><button class="btn small" data-net="join">Create reply code</button></div>
+              <textarea id="net-answer" readonly placeholder="Your reply code appears here"></textarea>
+              <div class="netbtns"><button class="btn small" data-net="copy" data-src="net-answer">Copy</button><button class="btn small" data-net="share" data-src="net-answer">Share</button></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="net-toast" id="net-toast"></div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section class="screen" id="scr-how">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2>How to play</h2><span class="step"></span></header>
+    <div class="body">
+      <div class="how">
+        <div class="panel"><h3>Controls</h3>
+          <ul class="keys">
+            <li><kbd data-bind="left">A</kbd><kbd data-bind="right">D</kbd><span>Move · double-tap to dash</span></li>
+            <li><kbd data-bind="jump">Space</kbd><span>Jump / multi-jump · hold to hover or fly (Solaris, Mecha)</span></li>
+            <li><kbd data-bind="light">Left click</kbd><span>Light attack · click again after a hit to combo</span></li>
+            <li><kbd data-bind="smash">Right click</kbd><span>Smash / heavy attack · hold to charge</span></li>
+            <li><kbd data-bind="special">Q</kbd><span>Special attack / recovery</span></li>
+            <li><kbd data-bind="shield">E</kbd><span>Shield · tap it just before a hit = parry</span></li>
+            <li><kbd data-bind="ult">R</kbd><span>Ultimate · when the ULT meter is full (also middle click / ULT button). Fill it with long combos, perfect parries and by surviving at high damage</span></li>
+            <li><kbd data-bind="shield">E</kbd>+<kbd data-bind="left">A</kbd><kbd data-bind="right">D</kbd><span>Dodge roll (while shielding)</span></li>
+            <li><kbd data-bind="down">S</kbd><span>Fast-fall / drop through platforms · Chimera crawls</span></li>
+            <li><kbd data-bind="taunt1">G</kbd><kbd data-bind="taunt2">H</kbd><span>Taunts: the two 3D emotes you mapped in Settings → Profile (on the ground; you're open while they play)</span></li>
+            <li><kbd>1</kbd>–<kbd>8</kbd><span>Pop the holographic 3D emojis you mapped to those keys (more from the Battle Pass and the Item Shop)</span></li>
+            <li><kbd>Esc</kbd><span>Pause</span></li>
+            <li><kbd>Touch</kbd><span>Left thumb: stick to move and aim · right thumb: on-screen buttons</span></li>
+          </ul></div>
+        <div class="panel"><h3>Fighting</h3>
+          <ul class="notes">
+            <li><b>Aim decides direction.</b> Cursor above you = up attack, below = down attack, to the side = side attack, on top of you = neutral. Q aims too.</li>
+            <li><b>Aerials:</b> in the air, light attacks become a spin, a forward hammer, a back kick (aim behind), an up flip-kick or a spiking down stomp. Attack while dashing = slide kick; while walking = thrust.</li>
+            <li><b>Damage % raises knockback.</b> Launch = base + damage × multiplier, divided by weight. Get launched past a blastzone and you lose a stock.</li>
+            <li><b>Directional influence:</b> hold A or D while launched to steer toward the stage.</li>
+            <li><b>Tech:</b> tap E just before you hit the ground or a wall in hit-stun to recover safely. Hold A or D as you land to tech-roll.</li>
+            <li><b>Shield</b> shrinks while held and shatters if you hold it too long. A parry stuns the attacker and reflects projectiles.</li>
+            <li><b>Ledges:</b> fall beside the stage edge to grab on, then Space to jump, A/D to climb or E to roll in.</li>
+            <li><b>Every fighter has a different Q:</b> dashes, teleports, projectiles, grabs, decoys, walls, dive-kicks, updrafts, black holes, rewinds and more. Point the cursor where you want it to go (Mecha, Volt and Blaze: aim straight up to recover).</li>
+          </ul></div>
+      </div>
+    </div>
+    <footer class="ft"></footer>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="scr-settings">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2>Settings</h2><span class="step">Saved automatically</span></header>
+    <div class="body"><div class="settings"><nav class="set-tabs" id="set-tabs"></nav><div class="set-panel" id="set-rows"></div></div></div>
+    <footer class="ft"></footer>
+  </section>
+
+  <!-- CHARACTER SELECT -->
+  <section class="screen" id="scr-select">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2>Choose your fighters</h2><span class="step">Step 1 of 3</span></header>
+    <div class="body">
+      <div class="slots">
+        <button class="slot plate active" id="slot-p1" data-slot="p1"><canvas class="plate-port" id="port-p1" width="112" height="112"></canvas><span class="plate-txt"><small>Player 1 · you</small><b id="slot-p1-name">–</b></span></button>
+        <span class="vs"><i>VS</i></span>
+        <button class="slot plate cpu" id="slot-cpu" data-slot="cpu"><canvas class="plate-port" id="port-cpu" width="112" height="112"></canvas><span class="plate-txt"><small>CPU opponent</small><b id="slot-cpu-name">Random</b></span></button>
+        <div class="mparams" id="mparams"></div>
+        <button class="btn dice" data-act="randp1" title="Random fighter for Player 1"><i>🎲</i>P1</button>
+        <button class="btn dice" data-act="rand" title="Random CPU opponent"><i>🎲</i>CPU</button>
+        <div class="diffpick"><small>CPU level</small><div class="seg" id="sel-diff"></div></div>
+      </div>
+      <div class="roster-wrap"><div class="roster" id="char-grid"></div><aside class="detail panel" id="detail"></aside></div>
+    </div>
+    <footer class="ft"><span class="ft-hint">Click your fighter again (or its dots) to change skin</span><button class="btn primary" id="sel-next" data-go="scr-stage">Choose stage →</button><button class="btn small ft-right" id="roster-btn" data-act="roster">Show all fighters</button></footer>
+  </section>
+
+  <!-- STAGE SELECT -->
+  <section class="screen" id="scr-stage">
+    <div class="scrim" style="opacity:.55"></div>
+    <header class="hd"><button class="btn small" data-go="scr-select">← Back</button><h2>Choose a stage</h2><span class="step">Step 2 of 3</span></header>
+    <div class="body"><div class="stage-wrap"><div class="grid4 g15" id="stage-grid"></div>
+      <aside class="panel sinspect" id="sinspect"><canvas id="si-canvas" width="832" height="300"></canvas>
+        <div class="si-head"><h3 id="si-name"></h3><span class="si-tag" id="si-tag"></span></div>
+        <div class="hzrow" id="si-haz"></div>
+        <div class="si-map"><small>Platform layout</small><svg id="si-map" viewBox="140 160 1000 440" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <p class="si-desc" id="si-desc"></p></aside></div></div>
+    <footer class="ft"><button class="btn" id="hz-btn" data-act="hazards">Hazards: On</button><button class="btn" id="rand-stage" data-act="randstage">Random stage</button><button class="btn primary" id="stage-next" data-go="scr-setup">CPU difficulty →</button><button class="btn small ft-right" id="roster-btn2" data-act="roster">Show all stages</button></footer>
+  </section>
+
+  <!-- DIFFICULTY / SETUP -->
+  <section class="screen" id="scr-setup">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-stage">← Back</button><h2>CPU difficulty</h2><span class="step">Step 3 of 3</span></header>
+    <div class="body">
+      <div class="setup">
+        <div class="diffs" id="diff-list"></div>
+        <aside class="panel summary">
+          <h3>Match</h3>
+          <div class="r"><span>You</span><b id="sum-p1">–</b></div>
+          <div class="r"><span>CPU</span><b id="sum-cpu">–</b></div>
+          <div class="r"><span>Stage</span><b id="sum-stage">–</b></div>
+          <div class="r"><span>Level</span><b id="sum-diff">–</b></div>
+          <div class="r"><span>Rules</span><b>3 stocks · no items</b></div>
+          <div class="r"><span>Time</span><div class="seg" id="sel-time"></div></div>
+          <button class="btn primary big" data-act="start">Start match</button>
+        </aside>
+      </div>
+    </div>
+    <footer class="ft"></footer>
+  </section>
+
+  <!-- PAUSE -->
+  <section class="screen modal" id="scr-pause">
+    <div class="scrim"></div>
+    <div class="pcard">
+      <div class="pmain">
+        <h1>PAUSED</h1>
+        <p class="pinfo" id="pause-info"></p>
+        <nav class="menu">
+          <button class="btn primary big" data-act="resume">Resume</button>
+          <button class="btn big" data-act="restart">Restart match</button>
+          <button class="btn big" data-go="scr-main">Quit to menu</button>
+        </nav>
+      </div>
+      <div class="pguide">
+        <h4>Keymap</h4>
+        <ul class="pkeys">
+          <li><kbd data-bind="left">A</kbd><kbd data-bind="right">D</kbd><span>Move · double-tap dash</span></li>
+          <li><kbd data-bind="jump">Space</kbd><span>Jump · multi-jump</span></li>
+          <li><kbd data-bind="light">LMB</kbd><span>Light attack (aim = direction)</span></li>
+          <li><kbd data-bind="smash">RMB</kbd><span>Smash · hold to charge</span></li>
+          <li><kbd data-bind="special">Q</kbd><span>Special · recovery</span></li>
+          <li><kbd data-bind="shield">E</kbd><span>Shield · tap = parry</span></li>
+          <li><kbd data-bind="ult">R</kbd><span>Ultimate (meter full)</span></li>
+          <li><kbd>ULT</kbd><span>Earn it: 3+ hit combos · perfect parries · surviving at 120%+</span></li>
+          <li><kbd data-bind="down">S</kbd><span>Fast-fall · drop through</span></li>
+          <li><kbd data-bind="taunt1">G</kbd><kbd data-bind="taunt2">H</kbd><span>Taunts · <kbd>1</kbd>–<kbd>8</kbd> emojis</span></li>
+        </ul>
+        <h4>Combo guide</h4>
+        <ul class="pcombos">
+          <li><b>Jab string</b><span><kbd data-bind="light">LMB</kbd>›<kbd data-bind="light">LMB</kbd>›<kbd data-bind="light">LMB</kbd></span></li>
+          <li><b>Launcher</b><span>aim ↑ <kbd data-bind="light">LMB</kbd>›<kbd data-bind="jump">Space</kbd>›aim ↑ <kbd data-bind="light">LMB</kbd></span></li>
+          <li><b>Spike</b><span><kbd data-bind="jump">Space</kbd>›aim ↓ <kbd data-bind="light">LMB</kbd> off-stage</span></li>
+          <li><b>Parry punish</b><span><kbd data-bind="shield">E</kbd> tap›<kbd data-bind="smash">RMB</kbd> charged</span></li>
+          <li><b>Dash attack</b><span><kbd data-bind="right">D</kbd><kbd data-bind="right">D</kbd>›<kbd data-bind="light">LMB</kbd> slide</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE NEON TIER BATTLE PASS (ui/battlepass.js) -->
+  <section class="screen" id="scr-pass">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2>Neon Tier <span class="bp-h">Battle Pass</span></h2><span class="step">Season 1 · 250 tiers</span></header>
+    <div class="body bp-body">
+      <aside class="bp-side">
+        <div class="bp-top">
+          <div class="bp-badge"><small>TIER</small><b id="bp-tier">0</b></div>
+          <div class="bp-prog"><div class="bp-bar big"><i id="bp-fill"></i></div><div class="bp-meta"><span id="bp-xp"></span></div><div class="bp-next" id="bp-next"></div></div>
+        </div>
+        <div class="bp-stats" id="bp-stats"></div>
+        <div class="bp-detail" id="bp-detail"><div class="bp-view" id="bp-view"></div>
+          <div class="bp-dtext"><h3 id="bp-dname"></h3><p id="bp-ddesc"></p><button class="btn" id="bp-equip" data-act="bp-equip">Equip</button></div></div>
+      </aside>
+      <main class="bp-main">
+        <div class="bp-loadout" id="bp-load"></div>
+        <div class="bp-track" id="bp-track" tabindex="-1"></div>
+      </main>
+    </div>
+    <footer class="ft"><span class="ft-hint">Earn XP by playing: matches, damage dealt, KOs, wins (double on your first win each day) and challenge clears. Progress saves automatically.</span></footer>
+  </section>
+
+  <!-- CHALLENGES: a sub-menu — the Arcade ladder, Break the Targets, Board the Platforms and the titles they earn (ui/challenges.js) -->
+  <section class="screen" id="scr-challenge">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2><small class="crumb">Main menu ›</small>Challenges</h2><span class="step" id="chal-coins"><i class="coin"></i><b class="coin-n">0</b></span></header>
+    <div class="body hub" data-hub="chal">
+      <nav class="hub-nav">
+        <button class="hub-item on" data-hubpane="arcade" style="--c:#ffd23a"><i>🕹</i><b>Classic Arcade</b><small id="chal-arc-best"></small></button>
+        <button class="hub-item" data-hubpane="btt" style="--c:#ff4fd8"><i>◎</i><b>Break the Targets</b><small id="chal-btt-best"></small></button>
+        <button class="hub-item" data-hubpane="btp" style="--c:#3dffc8"><i>▤</i><b>Board the Platforms</b><small id="chal-btp-best"></small></button>
+        <button class="hub-item" data-hubpane="horde" style="--c:#ff3d6a"><i>🌊</i><b>Survive the Horde</b><small id="chal-horde-best"></small><span class="hub-new">NEW</span></button>
+        <button class="hub-item" data-hubpane="mini" style="--c:#3dfff0"><i>🎮</i><b>Minigames</b><small id="chal-mini-best"></small><span class="hub-new">NEW</span></button>
+        <button class="hub-item" data-hubpane="titles" style="--c:#ff9a3d"><i>❝</i><b>Titles</b><small id="chal-titles-n"></small></button>
+        <p class="hub-note">Every challenge pays Coins and Battle Pass XP; clearing them earns titles for your nameplate.</p>
+      </nav>
+      <div class="hub-panel">
+        <section class="hub-pane on" data-pane="arcade" style="--c:#ffd23a">
+          <h3><i>🕹</i>Classic Arcade</h3>
+          <p>Climb a ladder of 6 rivals from Easy to Extreme, crush <b>GIANT OMEGA</b> at 300%, then face the towering, floating final boss: <b>OMNI HAND</b>. Two stocks a rung; continues allowed.</p>
+          <div class="chal-rows" id="chal-arc-rows"></div>
+          <div class="chal-pay"><span><i class="coin"></i>Up to 300 Coins</span><span>✦ 1,500 XP for a clear</span><span>❝ The Unstoppable · Iron Will · Giant Slayer · Hand Breaker</span></div>
+          <button class="btn primary big" data-act="chal-arcade">Choose your fighter →</button>
+        </section>
+        <section class="hub-pane" data-pane="btt" style="--c:#ff4fd8">
+          <h3><i>◎</i>Break the Targets</h3>
+          <p>Every fighter gets their own procedural 3D obstacle course: smash every floating target against the speedrun clock. Five stages, each harder — more targets, smaller, then moving.</p>
+          <ol class="chal-stages" id="chal-btt-rows"></ol>
+          <div class="chal-pay"><span><i class="coin"></i>40–115 Coins a clear</span><span>✦ XP + record bonuses</span><span>❝ Sharpshooter · Target Master · Speed Demon</span></div>
+          <button class="btn primary big" data-act="chal-btt">Choose your fighter →</button>
+        </section>
+        <section class="hub-pane" data-pane="btp" style="--c:#3dffc8">
+          <h3><i>▤</i>Board the Platforms</h3>
+          <p>A jumping puzzle: land on every tiny floating platform before the clock runs out. Five stages — tinier platforms, shorter clocks, then crumbling ones.</p>
+          <ol class="chal-stages" id="chal-btp-rows"></ol>
+          <div class="chal-pay"><span><i class="coin"></i>40–115 Coins a clear</span><span>✦ XP + record bonuses</span><span>❝ Platform Hopper · Sky Walker</span></div>
+          <button class="btn primary big" data-act="chal-btp">Choose your fighter →</button>
+        </section>
+        <section class="hub-pane" data-pane="horde" style="--c:#ff3d6a">
+          <h3><i>🌊</i>Survive the Horde</h3>
+          <p>Endless waves of low-HP holographic enemies pour into the Horde Pit — marching grunts, leaping hoppers, diving drones and, from wave 4, armoured brutes. Every attack, projectile and Ultimate you have works on them. Clearing a wave heals 20&nbsp;%; three stocks — how far can you get?</p>
+          <div class="chal-rows" id="chal-horde-rows"></div>
+          <div class="chal-pay"><span><i class="coin"></i>22 Coins a wave</span><span>✦ XP for every wave + KO</span><span>❝ Horde Breaker · Last Stand</span></div>
+          <button class="btn primary big" data-act="chal-horde">Choose your fighter →</button>
+        </section>
+        <section class="hub-pane" data-pane="mini" style="--c:#3dfff0">
+          <h3><i>🎮</i>Minigames</h3>
+          <p>Four season minigames — <b>Volley Brawl</b>, <b>Coin Scramble</b>, <b>Brawler Bowling</b> and <b>The Floor is Lava</b> — plus a party mode that rotates every month. The featured party mode pays <b>double Coins</b>; the others rotate back in later.</p>
+          <small class="mini-month" id="mini-month"></small>
+          <div class="mini-grid" id="mini-grid"></div>
+          <div class="chal-pay"><span><i class="coin"></i>Up to 300 Coins a game</span><span>✦ XP for every point</span><span>❝ Spike King · Strike Force · Kingpin · Lava Walker · Magma-Proof · Party Animal</span></div>
+        </section>
+        <section class="hub-pane" data-pane="titles" style="--c:#ff9a3d">
+          <h3><i>❝</i>Challenge titles</h3>
+          <p>Titles go in front of your username on your 3D nameplate. Tap an earned title to wear it.</p>
+          <div class="title-grid" id="chal-title-grid"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+  <section class="screen modal" id="scr-ladder">
+    <div class="scrim"></div>
+    <div class="pcard ladder">
+      <div class="pmain">
+        <h1 id="lad-title" class="chroma">ARCADE</h1>
+        <p class="pinfo" id="lad-sub"></p>
+        <ol class="lad-list" id="lad-list"></ol>
+        <nav class="menu" id="lad-menu"></nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen modal" id="scr-result">
+    <div class="scrim"></div>
+    <div class="victory">
+      <div class="vleft">
+        <h1 id="res-title" class="chroma">YOU WIN</h1>
+        <p id="res-sub"></p>
+        <canvas id="res-canvas" width="900" height="500"></canvas>
+      </div>
+      <div class="vright panel">
+        <h3>Match stats</h3>
+        <div class="vstats" id="res-stats"></div>
+        <div class="res-pass" id="res-pass"></div>
+        <div class="res-coins" id="res-coins"></div>
+        <div class="res-mast" id="res-mast"></div>
+        <nav class="menu">
+          <button class="btn primary big" data-act="restart">Rematch</button>
+          <button class="btn big" data-go="scr-select">Change fighters</button>
+          <button class="btn big" data-go="scr-main">Main menu</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE ITEM SHOP (ui/shop.js): fighters, maps, 45 3D skins, emotes and emojis — bought with Coins earned by playing -->
+  <section class="screen" id="scr-shop">
+    <div class="scrim"></div>
+    <header class="hd"><button class="btn small" data-go="scr-main">← Back</button><h2>Item <span class="shop-h">Shop</span></h2><span class="step coinchip-hd"><i class="coin"></i><b class="coin-n">0</b> Coins</span></header>
+    <div class="body shop-body">
+      <aside class="shop-side">
+        <div class="shop-detail" id="shop-detail"><div class="shop-view" id="shop-view"></div>
+          <div class="shop-dtext"><h3 id="shop-dname"></h3><p id="shop-ddesc"></p><div class="shop-try" id="shop-try"></div>
+            <button class="btn primary big" id="shop-buy" data-act="shop-buy">Buy</button></div></div>
+      </aside>
+      <main class="shop-main">
+        <nav class="shop-tabs" id="shop-tabs"></nav>
+        <div class="shop-grid" id="shop-grid" tabindex="-1"></div>
+      </main>
+    </div>
+    <footer class="ft"><span class="ft-hint">Everything here is bought with Coins you earn by playing — battles, damage, KOs, wins and challenge clears. No real money, ever.</span></footer>
+  </section>
+
+  <div class="pass-toast" id="pass-toast"></div>
+</div>
+</div>
+
+<!-- Game scripts: plain (non-module) scripts sharing one global scope. ORDER MATTERS. -->
+<script src="js/core/config.js"></script>
+<script src="js/data/stages.js"></script>
+<script src="js/data/characters.js"></script>
+<script src="js/data/moves.js"></script>
+<script src="js/data/balance.js"></script>
+<script src="js/data/skins.js"></script>
+<script src="js/data/ultimates.js"></script>
+<script src="js/core/utils.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/audio/audio.js"></script>
+<script src="js/audio/music.js"></script>
+<script src="js/game/fighters.js"></script>
+<script src="js/game/input.js"></script>
+<script src="js/game/touch.js"></script>
+<script src="js/game/gamepad.js"></script>
+<script src="js/game/match.js"></script>
+<script src="js/game/geometry.js"></script>
+<script src="js/game/physics.js"></script>
+<script src="js/game/combat.js"></script>
+<script src="js/game/hazards.js"></script>
+<script src="js/game/emotes.js"></script>
+<script src="js/game/fighter-update.js"></script>
+<script src="js/game/ai.js"></script>
+<script src="js/game/ultimate.js"></script>
+<script src="js/game/boss.js"></script>
+<script src="js/render/effects.js"></script>
+<script src="js/render/camera.js"></script>
+<script src="js/game/step.js"></script>
+<script src="js/game/netplay.js"></script>
+<script src="js/render/draw-utils.js"></script>
+<script src="js/render/arenas.js"></script>
+<script src="js/render/backgrounds.js"></script>
+<script src="js/render/stage.js"></script>
+<script src="js/render/atmosphere.js"></script>
+<script src="js/render/shading.js"></script>
+<script src="js/render/poses.js"></script>
+<script src="js/render/motion.js"></script>
+<script src="js/render/anim15.js"></script>
+<script src="js/render/f1car15.js"></script>
+<script src="js/render/intro15.js"></script>
+<script src="js/render/finisher16.js"></script>
+<script src="js/render/juice17.js"></script>
+<script src="js/render/fighters.js"></script>
+<script src="js/render/hud.js"></script>
+<script src="js/render/gl3d.js"></script>
+<script src="js/render/postfx.js"></script>
+<script src="js/render/tubes.js"></script>
+<script src="js/render/scene.js"></script>
+<script src="js/render/stage3d.js"></script>
+<script src="js/render/weather3d.js"></script>
+<script src="js/render/fighter3d.js"></script>
+<script src="js/render/skins3d.js"></script>
+<script src="js/render/models19.js"></script>
+<script src="js/render/fx3d.js"></script>
+<script src="js/render/kofx.js"></script>
+<script src="js/render/ultfx.js"></script>
+<script src="js/render/emotes3d.js"></script>
+<script src="js/render/rewards16.js"></script>
+<script src="js/render/maps14.js"></script>
+<script src="js/render/stages15.js"></script>
+<script src="js/render/fxui.js"></script>
+<script src="js/render/menu3d.js"></script>
+<script src="js/render/render3d.js"></script>
+<script src="js/render/render.js"></script>
+<script src="js/ui/menus.js"></script>
+<script src="js/ui/training.js"></script>
+<script src="js/ui/challenges.js"></script>
+<script src="js/game/minigames.js"></script>
+<script src="js/game/modes16.js"></script>
+<script src="js/game/horde18.js"></script>
+<script src="js/game/bowling19.js"></script>
+<script src="js/game/lava19.js"></script>
+<script src="js/ui/battlepass.js"></script>
+<script src="js/ui/shop.js"></script>
+<script src="js/ui/profile.js"></script>
+<script src="js/ui/platform.js"></script>
+<script src="js/ui/controls18.js"></script>
+<script src="js/ui/mastery19.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

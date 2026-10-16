@@ -1,0 +1,49 @@
+{
+  "name": "neon-brawl",
+  "productName": "NEON BRAWL",
+  "version": "0.1.0",
+  "description": "NEON BRAWL — 2D platform fighter (Windows, Android, iOS)",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "electron tools/smoke-test.js",
+    "test:single": "node tools/build-single.js && electron tools/smoke-test.js single-file/index.html",
+    "build:single": "node tools/build-single.js",
+    "balance": "electron tools/balance-sim.js",
+    "build:win": "electron-builder --win",
+    "android": "cap sync android && cap open android",
+    "ios": "cap sync ios && cap open ios"
+  },
+  "build": {
+    "appId": "com.neonbrawl.game",
+    "productName": "NEON BRAWL",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**",
+      "www/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/orbitron": "^5.3.0",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "@capacitor-community/electron": "^5.0.1",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  }
+}

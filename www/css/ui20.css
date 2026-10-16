@@ -1,0 +1,69 @@
+/* NEON BRAWL — v20 interface: THE PRO PASS (ui/propass20.js). Lives on the Battle Pass screen behind a "Neon Pass | Pro Pass ★"
+ * switch and reuses its scrolling glass grid + live 3D tiles; the Pro track is dressed in gold. Loaded after ui19.css. */
+
+/* ---- the track switch in the header ---- */
+#ui #scr-pass .hd{ position:relative; }
+#ui .pp-switch{ display:inline-flex; gap:calc(var(--u)*3); padding:calc(var(--u)*3); margin-left:auto; margin-right:calc(var(--u)*12); border-radius:99px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+#ui .pp-switch button{ border:0; cursor:pointer; padding:calc(var(--u)*7) calc(var(--u)*16); border-radius:99px; background:transparent; color:var(--g-ink2,#c8cbe6); font:800 calc(var(--u)*12) Inter,sans-serif; letter-spacing:.04em;
+  transition:background .25s, color .25s, box-shadow .25s, transform .2s; }
+#ui .pp-switch button:hover{ color:#fff; transform:translateY(-1px); }
+#ui .pp-switch button.on{ color:#fff; background:linear-gradient(135deg,color-mix(in srgb,var(--acc1) 75%,#000),var(--acc2)); box-shadow:0 0 calc(var(--u)*14) color-mix(in srgb,var(--acc2) 45%,transparent); }
+#ui .pp-switch button[data-track="pro"]{ color:#ffd36e; }
+#ui .pp-switch button[data-track="pro"].on{ color:#1a1200; background:linear-gradient(135deg,#ffe9a0,#ffb020 55%,#ff8a2a); box-shadow:0 0 calc(var(--u)*18) rgba(255,180,40,.55); }
+#ui .hd h2 .pro-h{ background:linear-gradient(90deg,#fff1b8,#ffb020,#ff8a2a) !important; -webkit-background-clip:text !important; background-clip:text !important; color:transparent !important; }
+
+/* ---- the Pro track: gold glass ---- */
+#ui #scr-pass.pro .bp-top,#ui #scr-pass.pro .bp-stats span{ border-color:rgba(255,200,80,.32); background:linear-gradient(135deg,rgba(255,210,90,.12),rgba(255,255,255,.02)); }
+#ui #scr-pass.pro .bp-badge{ color:#ffd36e; text-shadow:0 0 calc(var(--u)*14) rgba(255,180,40,.6); }
+#ui #scr-pass.pro .bp-bar i,#wrap .bp-bar.pro i{ background:linear-gradient(90deg,#ffb020,#fff1b8,#ffb020) !important; background-size:200% 100% !important; animation:pp20flow 2.4s linear infinite; }
+@keyframes pp20flow{ to{ background-position:-200% 0; } }
+#ui #scr-pass.pro .bp-track::-webkit-scrollbar-thumb{ background:linear-gradient(180deg,#fff1b8,#ffb020,#ff8a2a); }
+#ui .bp-sec.pro{ color:#ffe9a0; } #ui .bp-sec.pro::after{ background:linear-gradient(90deg,rgba(255,190,60,.6),transparent); } #ui .bp-sec.pro.done{ color:#ffb020; }
+#ui .bp-card.pro{ border-color:color-mix(in srgb,var(--rc) 45%,rgba(255,200,80,.45)); }
+#ui .bp-card.pro .bp-glass{ background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 22%,rgba(40,30,10,.5)),rgba(10,8,4,.66)), radial-gradient(120% 60% at 20% 0%,rgba(255,230,160,.2),transparent 60%); }
+#ui .bp-card.pro .pp-star{ position:absolute; top:calc(var(--u)*6); right:calc(var(--u)*8); z-index:2; font:400 calc(var(--u)*12) Inter,sans-serif; font-style:normal; color:#ffd36e; text-shadow:0 0 calc(var(--u)*8) rgba(255,180,40,.8); pointer-events:none; }
+#ui .bp-card.pro.new .pp-star{ display:none; }
+#ui .bp-card.pro.hero{ border-color:#ffd36e; box-shadow:0 0 calc(var(--u)*18) rgba(255,190,50,.35), inset 0 0 0 1px rgba(255,230,160,.35); }
+#ui .bp-card.pro.hero:not(.cur)::before{ position:absolute; top:calc(var(--u)*-8); left:50%; transform:translateX(-50%); z-index:3; white-space:nowrap; font:900 calc(var(--u)*8) Orbitron,sans-serif; letter-spacing:.1em;
+  padding:calc(var(--u)*2) calc(var(--u)*7); border-radius:calc(var(--u)*6); color:#1a1200; background:linear-gradient(135deg,#ffe9a0,#ffb020); }
+#ui .bp-card.pro.hero[data-tier="2"]:not(.cur)::before{ content:"TIER 2 · NEW STAGE"; }
+#ui .bp-card.pro.hero[data-tier="1"]:not(.cur)::before{ content:"TIER 1 · NEW FIGHTER"; }
+#ui .bp-detail.pro .bp-rar{ color:#ffd36e; }
+
+/* ---- the purchase banner at the top of the locked Pro track ---- */
+#ui .pp-banner{ grid-column:1 / -1; position:relative; display:grid; grid-template-columns:1fr auto; gap:calc(var(--u)*16); align-items:center; padding:calc(var(--u)*16) calc(var(--u)*20); margin-bottom:calc(var(--u)*4);
+  border-radius:calc(var(--u)*20); overflow:hidden; isolation:isolate; border:1px solid rgba(255,210,100,.45);
+  background:linear-gradient(120deg,rgba(255,200,70,.22),rgba(255,120,60,.08) 45%,rgba(140,90,255,.14)), rgba(14,10,6,.55);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3); box-shadow:0 calc(var(--u)*10) calc(var(--u)*30) rgba(0,0,0,.35), 0 0 calc(var(--u)*28) rgba(255,180,40,.18); }
+#ui .pp-banner::before{ content:""; position:absolute; inset:-40%; z-index:-1; background:conic-gradient(from 0deg,transparent 0 30%,rgba(255,220,140,.18) 40%,transparent 50% 80%,rgba(255,150,220,.14) 90%,transparent);
+  animation:pp20spin 9s linear infinite; }
+@keyframes pp20spin{ to{ transform:rotate(1turn); } }
+#ui .pp-banner small{ font:800 calc(var(--u)*10) Inter,sans-serif; letter-spacing:.2em; color:#ffd36e; }
+#ui .pp-banner h3{ margin:calc(var(--u)*2) 0 calc(var(--u)*6); font:900 calc(var(--u)*22) Inter,sans-serif; letter-spacing:-.01em; color:#fff; text-shadow:0 0 calc(var(--u)*16) rgba(255,190,60,.45); }
+#ui .pp-banner p{ margin:0; max-width:62ch; font:500 calc(var(--u)*12.5)/1.45 Inter,sans-serif; color:rgba(255,246,226,.86); }
+#ui .pp-banner p b{ color:#ffe9a0; }
+#ui .pp-br{ display:flex; flex-direction:column; align-items:flex-end; gap:calc(var(--u)*7); }
+#ui .pp-price{ display:inline-flex; align-items:center; gap:calc(var(--u)*6); font:900 calc(var(--u)*28) Inter,sans-serif; color:#fff1b8; text-shadow:0 0 calc(var(--u)*16) rgba(255,190,60,.6); }
+#ui .pp-buy{ min-width:calc(var(--u)*200); font-weight:900; background:linear-gradient(135deg,#ffe9a0,#ffb020 55%,#ff8a2a) !important; color:#1a1200 !important; border:0 !important; box-shadow:0 0 calc(var(--u)*20) rgba(255,180,40,.5) !important; }
+#ui .pp-buy.confirm{ animation:pp20pulse .9s ease-in-out infinite; }
+#ui .pp-buy:disabled{ filter:grayscale(.7) brightness(.75); box-shadow:none !important; cursor:not-allowed; }
+@keyframes pp20pulse{ 50%{ transform:scale(1.05); box-shadow:0 0 calc(var(--u)*30) rgba(255,200,60,.85); } }
+#ui .pp-br small{ font:600 calc(var(--u)*10.5) Inter,sans-serif; letter-spacing:.02em; color:rgba(255,246,226,.7); display:inline-flex; align-items:center; gap:calc(var(--u)*4); }
+
+/* ---- Pro locks on the select screens + Pro swatches / chips ---- */
+#ui .tlock.pro{ background:linear-gradient(135deg,rgba(255,220,120,.92),rgba(255,160,40,.92)) !important; color:#1a1200 !important; }
+#ui .tlock.pro i{ font-style:normal; } #ui .tlock.pro b{ font:900 calc(var(--u)*10) Orbitron,sans-serif; letter-spacing:.12em; }
+#ui .swatch.pro{ box-shadow:0 0 0 calc(var(--u)*1.5) rgba(255,210,100,.85), 0 0 calc(var(--u)*8) rgba(255,190,50,.5); }
+#ui .pchip.emo.pro{ border-color:rgba(255,210,100,.6) !important; }
+#ui .pchip.emo.pro.more{ color:#ffd36e; font-weight:800; }
+
+/* ---- results: the Pro progress line ---- */
+#wrap .rp-pro{ margin-top:calc(var(--u)*8); padding-top:calc(var(--u)*7); border-top:1px solid rgba(255,210,100,.25); }
+#wrap .rp-pro span{ display:block; margin-bottom:calc(var(--u)*4); font:800 calc(var(--u)*11) Orbitron,sans-serif; letter-spacing:.1em; color:#ffd36e; }
+#wrap .rp-pro em{ font-style:normal; color:#fff1b8; }
+
+@media (max-width:760px), (max-height:520px){
+  #ui .pp-switch button{ padding:calc(var(--u)*5) calc(var(--u)*10); font-size:calc(var(--u)*11); }
+  #ui .pp-banner{ grid-template-columns:1fr; } #ui .pp-br{ align-items:stretch; }
+}

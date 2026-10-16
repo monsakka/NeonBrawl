@@ -1,0 +1,21 @@
+/* NEON BRAWL — Hitbox / hurtbox geometry helpers. */
+'use strict';
+
+/* ============================ GEOMETRY ============================== */
+const CRAWL_H = 36;                                                  // Chimera's low-profile crawl hurtbox height
+// (f.scale: the Arcade's Giant Boss is 3× — hurtbox, attack boxes and shield all scale about the feet)
+const bodyRect = f => { if (f.hand) return handRect(f); const s = f.scale || 1; return f.crawl ? { x: f.x - (BODY_W / 2 + 6) * s, y: f.y - CRAWL_H * s, w: (BODY_W + 12) * s, h: CRAWL_H * s } : { x: f.x - BODY_W / 2 * s, y: f.y - BODY_H * s, w: BODY_W * s, h: BODY_H * s }; };
+const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+// Every attack / grab rectangle the combat code actually tests this step (drawn by the Training hitbox overlay; no sim effect)
+const HITBOX_LOG = [];
+function logHitbox(r, f, kind) { if (HITBOX_LOG.length < 64) HITBOX_LOG.push({ x: r.x, y: r.y, w: r.w, h: r.h, kind, col: f.color, owner: f.id }); }
+function hitboxRect(f, m) {
+  const b = m.box, s = f.scale || 1;
+  return { x: f.facing > 0 ? f.x + b.ox * s : f.x - (b.ox + b.w) * s, y: f.y + b.oy * s, w: b.w * s, h: b.h * s };
+}
+function rectCircle(r, cx, cy, rad) {
+  const px = clamp(cx, r.x, r.x + r.w), py = clamp(cy, r.y, r.y + r.h);
+  return (px - cx) * (px - cx) + (py - cy) * (py - cy) <= rad * rad;
+}
+const shieldR = f => (18 + 26 * clamp(f.shield / 100, 0, 1) + (f.ch.shieldBonus || 0)) * (f.scale || 1);     // bubble shrinks as it weakens
+const isOffStage = f => !f.onGround && (f.x < STAGE.x - 6 || f.x > STAGE.x + STAGE.w + 6 || f.y > STAGE.y + 20);
